@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NextAI 2.0</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    *{box-sizing:border-box} body{margin:0;background:#0b1020;color:#eef2ff;min-height:100vh}
+    .wrap{max-width:850px;margin:auto;padding:28px 16px;display:flex;flex-direction:column;min-height:100vh}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+    h1{font-size:25px;margin:0} .tag{font-size:12px;color:#9ca3af;border:1px solid #30384f;padding:6px 10px;border-radius:20px}
+    #chat{flex:1;display:flex;flex-direction:column;gap:12px;padding:10px 0 22px}
+    .msg{max-width:85%;padding:13px 15px;border-radius:16px;line-height:1.7;white-space:pre-wrap}
+    .user{align-self:flex-start;background:#263657}.bot{align-self:flex-end;background:#151d31;border:1px solid #29334c}
+    form{display:flex;gap:10px;position:sticky;bottom:0;background:#0b1020;padding:12px 0}
+    textarea{flex:1;resize:vertical;min-height:54px;max-height:150px;border:1px solid #303b56;border-radius:14px;background:#111a2d;color:white;padding:14px;font:inherit}
+    button{border:0;border-radius:14px;padding:0 22px;background:#7c5cff;color:white;font:inherit;font-weight:700;cursor:pointer}
+    button:disabled{opacity:.5;cursor:wait}.hint{font-size:12px;color:#8d99b5;margin-top:10px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>NextAI <span style="color:#9b87ff">2.0</span></h1><span class="tag">CORE ONLINE</span></header>
+  <main id="chat"><div class="msg bot">أنا NextAI. اكتب طلبك وهنبدأ.</div></main>
+  <form id="form"><textarea id="message" placeholder="اكتب رسالتك هنا..." required></textarea><button id="send">إرسال</button></form>
+  <div class="hint">نسخة تأسيسية: المحادثة الحالية فقط. الذاكرة والأدوات هتتركب في المراحل التالية.</div>
+</div>
+<script>
+const form=document.getElementById('form'), input=document.getElementById('message');
+const chat=document.getElementById('chat'), send=document.getElementById('send');
+function add(text,who){const el=document.createElement('div');el.className='msg '+who;el.textContent=text;chat.appendChild(el);el.scrollIntoView({behavior:'smooth',block:'end'});}
+form.addEventListener('submit',async e=>{
+ e.preventDefault();const message=input.value.trim();if(!message)return;
+ add(message,'user');input.value='';send.disabled=true;send.textContent='...';
+ try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})});
+ const data=await r.json();if(!r.ok)throw new Error(data.detail||'حدث خطأ');add(data.reply,'bot');
+ }catch(err){add('خطأ: '+err.message,'bot');}
+ finally{send.disabled=false;send.textContent='إرسال';input.focus();}
+});
+</script>
+</body>
+</html>
